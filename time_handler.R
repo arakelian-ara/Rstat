@@ -1,4 +1,7 @@
 ###############################################################################
+# time_handler.R by Ara Arakelian - v1 - April 2018
+# Code to simplify time axis management of netcdf files
+###############################################################################
 #  --------- Netcdf Warpper of Time handler -----------------------------------
 #  Function to read time axis of a netcdf file
 #  This Function is a kind of wrapper of the time_handler functio (see below)
