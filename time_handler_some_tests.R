@@ -1,4 +1,9 @@
-
+###########################################################################################
+# Simple script to unit test of time_handler.R script
+# by Ara Arakelian - v1 - April 2018
+# To be used on mesocentre.ipsl.fr ciclad/climserv
+# Check if time_handler.R work with all kind of file
+###########################################################################################
 library('ncdf4')
 source('~/Rstat/0HeatWaves/Functions/handle_files.R')
 source('~/Rstat/0HeatWaves/Functions/whos.R')
@@ -37,12 +42,6 @@ proto_test(FF);
 
 
 
-
-
-
-
-
-
 ###########################################################################################
 # EVERYTHING GO FINE
 ###########################################################################################
@@ -67,24 +66,17 @@ a=a+1;FF[[a]]='/bdd/ncep/4xdaily/surf/1948/slp.1948.nc'
 
 for (ff in 1:a){readline(prompt="Press [enter] to continue");proto_test(FF[[ff]]);readline(prompt="Press [enter] to continue");}
 
-
 ###########################################################################################
-
 FF='/bdd/E-OBS/Grid_0.25deg_reg/tx_0.25deg_reg_v15.0.nc4';  proto_test(FF);
 FF='/bdd/ncep/4xdaily/press/2010/rhum.2010.nc' ;            proto_test(FF);
 FF='/bdd/ncep/1xdaily/press/2010/rhum.2010.nc' ;            proto_test(FF);
 FF='/bdd/ncep/4xdaily/flux/1995/tmax.2m.gauss.1995.nc' ;    proto_test(FF);
 FF='/bdd/ncep/4xdaily/press/2010/rhum.2010.nc' ;            proto_test(FF,'time',TRUE);
-
 ###########################################################################################
 # 'time' is 'time_counter'
 FF='/data/aarakeli/THESE_SAVE/download_CM5MR/v5.historicalMR1_19500101_19591231_1D_ua.nc'; proto_test(FF,'time_counter');
 FF='/data/aarakeli/THESE_SAVE/download_CM5MR/v5.historicalMR1_19500101_19591231_1D_ua.nc'; proto_test(FF,'time_counter');
-
-
 ###########################################################################################
 }##########################################################################################
 ###########################################################################################
-
-
 #
