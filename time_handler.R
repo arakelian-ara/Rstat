@@ -1,7 +1,4 @@
 ###############################################################################
-# time_handler.R by Ara Arakelian - v1 - April 2018
-# Code to simplify time axis management of netcdf files
-###############################################################################
 #  --------- Netcdf Warpper of Time handler -----------------------------------
 #  Function to read time axis of a netcdf file
 #  This Function is a kind of wrapper of the time_handler functio (see below)
@@ -59,17 +56,20 @@ nc_time_handler <- function(filename,ta_variable_name='time',sub_daily_info='aut
     TIME=as.vector(ncvar_get(nc,ta_variable_name));
     TIME_AXIS_ATT=ncatt_get(nc,ta_variable_name);
     nc_close(nc);
+  } else if('RNetCDF' %in% installed.packages()){
+    library('RNetCDF');
+    nc=open.nc(filename,write=FALSE);
+    TIME=as.vector(var.get.nc(nc,ta_variable_name));
+    if (is.character(att.get.nc(nc,ta_variable_name,'units'))){
+      TIME_AXIS_ATT$units=att.get.nc(nc,ta_variable_name,'units');
+    }
+    if (is.character(att.get.nc(nc,ta_variable_name,'calendar'))){
+      TIME_AXIS_ATT$units=att.get.nc(nc,ta_variable_name,'calendar');
+    }
   } else if('ncdf' %in% installed.packages()){
-### TO DO : adjust the way to handle different package
-#    library(ncdf);
-#    library(RNetCDF);
-#open.ncdf(FF)
-#'att.put.ncdf', 'att.get.ncdf', 'close.ncdf', 'create.ncdf',
-#     'dim.def.ncdf', 'get.var.ncdf', 'put.var.ncdf', 'open.ncdf',
-#     'print.ncdf', 'set.missval.ncdf', 'sync.ncdf', 'var.def.ncdf'.
-#     'redef.ncdf'.
+    stop("Package ‘ncdf’ was removed from the CRAN repository. Archived on 2016-01-11: use 'RNetCDF' or 'ncdf4' instead.");
   } else {
-    stop('ncdf4 package must be installed')
+    stop('ncdf4 or RNetCDF package must be installed')
   }
   # This two line are planned to be used for test, use carefuuly
   if (is.character(overwrite_calendar)){TIME_AXIS_ATT$calendar=overwrite_calendar;}
@@ -80,17 +80,16 @@ nc_time_handler <- function(filename,ta_variable_name='time',sub_daily_info='aut
     warning(cat('warning : \'calendar\' is missing as \'',ta_variable_name,'\' attribut','\n',
                 'warning : \'calendar\' is now define as gregorian ie standard\n',sep=""),call.=FALSE,immediate.=TRUE);
     TIME_AXIS_ATT$calendar='gregorian';
-
   }
   if (('units' %in% tolower(names(TIME_AXIS_ATT)))==FALSE){
     warning(cat('warning : \'units\' is missing as \'',ta_variable_name,'\' attribut','\n',
                 'warning : \'calendar\' is now define as ',TIME_AXIS_ATT$units,'\n',sep=""),call.=FALSE,immediate.=TRUE);
     TIME_AXIS_ATT$units="days since 1900-01-01 00:00:00"
-
   }
   if (is.numeric(TIME)==FALSE){
     stop(paste0('It\'s look like your variable \'',ta_variable_name,'\' is not a numeric vector'));
   }
+  if (calendar=='none'){TIME=1;} # none calendar specific case
   return(time_handler(TIME,TIME_AXIS_ATT$calendar,TIME_AXIS_ATT$units,sub_daily_info=sub_daily_info));
 }
 ###############################################################################
@@ -144,7 +143,7 @@ time_handler <- function(time_value,calendar,units,sub_daily_info='auto'){
   Yb=strsplit(Origin,'-')[[1]][1];
   #Mb=strsplit(Origin,'-')[[1]][2];
   #Db=strsplit(Origin,'-')[[1]][3];
-
+  if (calendar=='none'){time_value=1;} # none calendar specific case
   if (length(strsplit(units," ")[[1]])==4){
     origin_sub_daily_info=TRUE;
     origin_time=strsplit(units," ")[[1]][4];
@@ -180,11 +179,11 @@ time_handler <- function(time_value,calendar,units,sub_daily_info='auto'){
     time_value=time_value*24*60*60; # time_value are in days - convert to second for shift
     # shift formula depends on origin_time form/synthax
     if (length(strsplit(origin_time,':')[[1]])==1){
-      time_value=time_value+strsplit(origin_time,':')[[1]][1]*60*60;
+      time_value=time_value+as.numeric(strsplit(origin_time,':')[[1]][1])*60*60;
     } else if (length(strsplit(origin_time,':')[[1]])==2){
-      time_value=time_value+strsplit(origin_time,':')[[1]][1]*60*60+strsplit(origin_time,':')[[1]][2]*60;
+      time_value=time_value+as.numeric(strsplit(origin_time,':')[[1]][1])*60*60+as.numeric(strsplit(origin_time,':')[[1]][2])*60;
     } else if (length(strsplit(origin_time,':')[[1]])==3){
-      time_value=time_value+strsplit(origin_time,':')[[1]][1]*60*60+strsplit(origin_time,':')[[1]][2]*60+strsplit(origin_time,':')[[1]][3];
+      time_value=time_value+as.numeric(strsplit(origin_time,':')[[1]][1])*60*60+as.numeric(strsplit(origin_time,':')[[1]][2])*60+as.numeric(strsplit(origin_time,':')[[1]][3]);
     } else {
       stop('unknow sub daily information at origin synthax')
     }
@@ -208,16 +207,18 @@ time_handler <- function(time_value,calendar,units,sub_daily_info='auto'){
   }
   # Sub-daily informations are removed from time_value
   time_value_day=floor(time_value);
-  if (calendar %in% c('julian','none')){
-    error('not yet');
-  } else if (calendar %in% c('proleptic_gregorian','gregorian','noleap','all_leap','360_day')){
+  if (calendar %in% c('none')){
+    time_value_day=1;
+    yymmdd=yymmdd_conversion(calendar,time_value_day,Origin,Yb);
+  } else if (calendar %in% c('none','proleptic_gregorian','gregorian','noleap','all_leap','360_day','julian')){
     yymmdd=yymmdd_conversion(calendar,time_value_day,Origin,Yb);
   } else {
   error('unkown calendar not yet');
   }
   yymmdd_print=yymmdd_printer(yymmdd);
 
-  if (sub_daily_info==TRUE & length(hhmmss_print)==1){
+
+ if (sub_daily_info==TRUE & length(hhmmss_print)==1){
     hhmmss=rep(hhmmss,length(time_value));
     hhmmss_print=rep(hhmmss_print,length(time_value));
   }
@@ -306,6 +307,7 @@ calendar_handling <- function(calendar) {
     calendar='gregorian';
   } else if (calendar %in% c('proleptic_gregorian')){
   # A Gregorian calendar extended to dates before 1582-10-15. That is, a year is a leap year if either (i) it is divisible by 4 but not by 100 or (ii) it is divisible by 400.
+  # NEEDED ADD NOTE
     calendar='gregorian';
   } else if (calendar %in% c('noleap','365_day','365day','365d')){
   #Gregorian calendar without leap years, i.e., all years are 365 days long.
@@ -318,11 +320,9 @@ calendar_handling <- function(calendar) {
     calendar='360_day';
   } else if (calendar %in% c('julian')){
   #Julian calendar
-stop('julian calendar not yet');
     calendar='julian';
   } else if (calendar %in% c('none')){
   # The calendar attribute may be set to none in climate experiments that simulate a fixed time of year.
-stop('none calendar not yet');
   calendar='none';
   } else {
     stop(' This type of calendar is not supported \n Maybe it is just the attribut of netcdf file that is not supported, i.e., string comparaison');
@@ -460,6 +460,11 @@ yymmdd_conversion <- function(calendar,time_day,date_origin,year_begin){
 # list$MM       = numeric : month of the year [1~12]
 # list$DD       = numeric : day of the month [1~31]
 # -----------------------------------------------------------------------------
+  if (calendar %in% c('none')){
+    DD=strtoi(strsplit(date_origin,'-')[[1]][3]);
+    MM=strtoi(strsplit(date_origin,'-')[[1]][2]);
+    YYYY=strtoi(year_begin);
+  }
   if (calendar %in% c('gregorian')){
     TEMP=as.Date(time_day,origin=date_origin);
     DD  =as.numeric(format(TEMP,'%d'));
@@ -507,7 +512,51 @@ yymmdd_conversion <- function(calendar,time_day,date_origin,year_begin){
     MM  =  MM[time_day_shift+1];
     DD  =  DD[time_day_shift+1];
   }
+
+  if (calendar %in% c('julian')){
+    GVL=365.25;
+    min_val=min(time_day); nb_years_for_min_val=floor(min_val/GVL);
+    max_val=max(time_day); nb_years_for_max_val=floor(max_val/GVL);
+    nb_year_covered=nb_years_for_max_val-nb_years_for_min_val+1;
+    real_first_year=strtoi(year_begin)+nb_years_for_min_val;
+    real_last_year=strtoi(year_begin)+nb_years_for_max_val;
+    we_begin_at_year=real_first_year-real_first_year%%4;
+    we_finish_at_year=real_last_year+(0.75-(real_last_year/4)%%1)*4;
+    we_cover_4times_nb_year=(we_finish_at_year-we_begin_at_year+1)/4;
+    if (we_begin_at_year<year_begin){
+      list_shift_year=(we_begin_at_year:(strtoi(year_begin)-1));
+      nby_366=sum((list_shift_year/4)%%1==0);
+      nby_365=length(list_shift_year)-nby_366;
+      time_day_shift=time_day+365*nby_365+366*nby_366;
+      new_date_origin=paste0(we_begin_at_year,substr(date_origin,(nchar(date_origin)-5),nchar(date_origin)));
+    } else if (we_begin_at_year>strtoi(year_begin)){
+      list_shift_year=(strtoi(year_begin):we_finish_at_year);
+      nby_366=sum((list_shift_year/4)%%1==0);
+      nby_365=length(list_shift_year)-nby_366;
+      time_day_shift=time_day-(365*(nby_365-3)+366*(nby_366-1));
+      new_date_origin=paste0(we_begin_at_year,substr(date_origin,(nchar(date_origin)-5),nchar(date_origin)));
+    } else {
+      list_shift_year=strtoi(year_begin);
+      new_date_origin=date_origin;
+      time_day_shift=time_day;
+    }
+    TEMP=as.Date(0:1460,origin=new_date_origin);
+    DD=as.numeric(format(TEMP,'%d'));
+    MM=as.numeric(format(TEMP,'%m'));
+    YYYY=as.numeric(format(TEMP,'%Y'));
+    DD=rep(DD,we_cover_4times_nb_year);
+    MM=rep(MM,we_cover_4times_nb_year);
+    for (yy in 1:(we_cover_4times_nb_year-1)){YYYY=c(YYYY,(YYYY+4));};
+    MM  =  MM[time_day_shift+1];
+    DD  =  DD[time_day_shift+1];
+    YYYY=YYYY[time_day_shift+1];
+  }
   YMD=YYYY*10^4+MM*10^2+DD;
+
+#source('~/Rstat/Functions/whos2.R');
+#whos2()
+
+
   return(list(YMD=YMD,YYYY=YYYY,MM=MM,DD=DD));
 }
 ###############################################################################
