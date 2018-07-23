@@ -89,7 +89,7 @@ nc_time_handler <- function(filename,ta_variable_name='time',sub_daily_info='aut
   if (is.numeric(TIME)==FALSE){
     stop(paste0('It\'s look like your variable \'',ta_variable_name,'\' is not a numeric vector'));
   }
-  if (calendar=='none'){TIME=1;} # none calendar specific case
+  if (TIME_AXIS_ATT$calendar=='none'){TIME=1;} # none calendar specific case
   return(time_handler(TIME,TIME_AXIS_ATT$calendar,TIME_AXIS_ATT$units,sub_daily_info=sub_daily_info));
 }
 ###############################################################################
