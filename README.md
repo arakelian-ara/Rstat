@@ -3,14 +3,14 @@ Some Codes
 
 About **time_handler.R**
 TODO : 
-- [ ] *works as expected*
-- [ ] NA
+- [X] *works as expected*
+- [X] handeling 2 or 3 R libraries that allow to handle netcdf file ( already some line in the file)
+- [X] add julian calendar handeling
+- [ ] some other tests are needed
 
 About **keeper.R**
 TODO :
-- [ ] first release
+- [] first release
 
 About **whos.R**
-TODO :
-- [ ] *works as expected*
-- [ ] NA
+- [X] *works as expected*
