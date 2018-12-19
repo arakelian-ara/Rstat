@@ -85,15 +85,43 @@ whos <- function(Type='',niv_env=-1){
 # Whos : print length or dimension
 #######################################################################
 .whosLD <- function(name,clas,MyEnv){
-     if (clas=='character'){cat(sprintf('%8d',nchar(get(name,env=MyEnv)),sep=''));}
-else if (clas=='list')     {cat(sprintf('%8d',length(get(name,env=MyEnv)),sep='')); }
-else if (clas=='integer')  {cat(sprintf('%8d',length(get(name,env=MyEnv)),sep=''));}
-else if (clas=='matrix')   {cat(sprintf('%8d x %d',dim(get(name,env=MyEnv))[1],dim(get(name,env=MyEnv))[2],sep='')); }
-else if (clas=='array')    {cat(sprintf('%8d',dim(get(name,env=MyEnv))[1],sep=''));
-                              for (i in 2:length(dim(get(name,env=MyEnv)))){
-                                cat(sprintf(' x %d',dim(get(name,env=MyEnv))[i],sep=''));
-                              }
-                            }
-  else                      { cat('       case_to_add');}
+if (clas=='character'){
+  if(length(get(name,env=MyEnv))==1){
+    cat(sprintf('%8d',nchar(get(name,env=MyEnv)),sep=''));
+  } else {
+    cat(sprintf('%8d strings',length(get(name,env=MyEnv)),sep=''));
+  }
+}
+else if (clas=='list'){cat(sprintf('%8d',length(get(name,env=MyEnv)),sep='')); }
+else if (clas=='numeric'){cat(sprintf('%8d',length(get(name,env=MyEnv)),sep='')); }
+else if (clas=='integer'){cat(sprintf('%8d',length(get(name,env=MyEnv)),sep=''));}
+else if (clas=='matrix'){cat(sprintf('%8d x %d',dim(get(name,env=MyEnv))[1],dim(get(name,env=MyEnv))[2],sep='')); }
+else if (clas=='array'){cat(sprintf('%8d',dim(get(name,env=MyEnv))[1],sep=''));
+                         for (i in 2:length(dim(get(name,env=MyEnv)))){
+                           cat(sprintf(' x %d',dim(get(name,env=MyEnv))[i],sep=''));
+                         }
+                       }
+else if (clas=='logical'){
+  if(length(get(name,env=MyEnv))==1){
+    cat(sprintf('%8d : ',length(get(name,env=MyEnv)),sep=''),get(name,env=MyEnv),sep='');
+  } else {
+    cat(sprintf('%8d values',length(get(name,env=MyEnv)),sep=''));
+  }
+}
+else { cat('       case_to_add');}
+
+# If numeric or integer with only 1 value, the value is printed
+if((all(clas=='numeric') | all(clas=='integer'))){
+  if(length(get(name,env=MyEnv))==1){
+    cat(sprintf(' : %g',get(name,env=MyEnv)));
+  }
+}
+# If there is 1 character string and is shorter than 20, the string is printed
+if(all(clas=='character') & length(get(name,env=MyEnv))==1){
+  if(nchar(get(name,env=MyEnv))<20){
+    cat(sprintf(' : \'%s\'',get(name,env=MyEnv)));
+  }
+}
+
 }
 

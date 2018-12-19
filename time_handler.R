@@ -1,4 +1,7 @@
 ###############################################################################
+# time_handler functions
+# v1.0 by Ara Arakelian (LSCE) June 2018
+###############################################################################
 #  --------- Netcdf Warpper of Time handler -----------------------------------
 #  Function to read time axis of a netcdf file
 #  This Function is a kind of wrapper of the time_handler functio (see below)
