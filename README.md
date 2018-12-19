@@ -10,7 +10,7 @@ TODO :
 
 About **keeper.R**
 TODO :
-- [] first release
+- [ ] first release
 
 About **whos.R**
 - [X] *works as expected*
