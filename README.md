@@ -1,14 +1,16 @@
 # Rstat
 Some Codes
 
-About **whos.R**
-
-TODO :
+About **time_handler.R**
+TODO : 
 - [ ] *works as expected*
 - [ ] NA
 
-About **time_handler.R**
+About **keeper.R**
+TODO :
+- [ ] first release
 
-TODO : 
+About **whos.R**
+TODO :
 - [ ] *works as expected*
 - [ ] NA
