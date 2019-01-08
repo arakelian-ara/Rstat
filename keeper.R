@@ -62,10 +62,10 @@ keeper<-function(...,chara=character(),fct=TRUE,my_envir=parent.env(environment(
 load_keeper<-function(file,...,chara=character(),my_envir=parent.env(environment())){
 # -----------------------------------------------------------------------------
 # Examples :
-# Easy to use : keeper(file,a,b,c,d) 
-#               keeper(file,'a','b','c','d')
-#            or keeper(file,a,b,'c','d')
-# Using chara : keeper(file,a,'b',chara=c('c','d'));
+# Easy to use : load_keeper(file,a,b,c,d) 
+#               load_keeper(file,'a','b','c','d')
+#            or load_keeper(file,a,b,'c','d')
+# Using chara : load_keeper(file,a,'b',chara=c('c','d'));
 # chara is designed to be used as the results of the ls function, such as ls(pattern='a')
 # INPUT -----------------------------------------------------------------------
 # file  = string : path to R data file
