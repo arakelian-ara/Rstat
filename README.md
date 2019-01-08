@@ -4,7 +4,7 @@ Some Codes
 About **time_handler.R**
 TODO : 
 - [X] *works as expected*
-- [X] handeling 2 or 3 R libraries that allow to handle netcdf file ( already some line in the file)
+- [X] handeling 2 or 3 R libraries that allow to handle netcdf file
 - [X] add julian calendar handeling
 - [ ] some other tests are needed
 
